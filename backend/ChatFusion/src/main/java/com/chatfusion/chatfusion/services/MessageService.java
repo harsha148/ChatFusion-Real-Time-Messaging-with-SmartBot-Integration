@@ -43,16 +43,23 @@ public class MessageService implements IMessageService {
 
     @Override
     public List<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException {
-        return List.of();
+        return this.messageRepository.findMessagesByChatId(chatId);
     }
 
     @Override
     public Message findMessageById(Integer messaageId) throws MessageException {
-        return null;
+        return this.messageRepository.findById(messaageId).orElseThrow(()-> new MessageException("Message not found"));
     }
 
     @Override
     public void deleteMessage(Integer messageId, User reqUser) throws MessageException {
+        Message message = this.messageRepository.findById(messageId)
+                .orElseThrow(() -> new MessageException("The required message is not found"));
 
+        if (message.getUser().getId() == reqUser.getId()) {
+            this.messageRepository.delete(message);
+        }
+
+        throw new MessageException("You are not authorized for this task");
     }
 }
