@@ -33,8 +33,8 @@ public class AppConfig {
                     public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                         CorsConfiguration cfg = new CorsConfiguration();
 
-                        cfg.setAllowedOrigins(Arrays.asList("*"));
-                        cfg.setAllowedOriginPatterns(Arrays.asList("*"));
+                        cfg.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+                        cfg.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
 
                         cfg.setAllowedMethods(Collections.singletonList("*"));
                         cfg.setAllowedHeaders(Collections.singletonList("*"));
@@ -47,7 +47,7 @@ public class AppConfig {
 
     }
 
-    // Defines a bean for password encoding using BCrypt
+                        // Defines a bean for password encoding using BCrypt
     @Bean
     PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
