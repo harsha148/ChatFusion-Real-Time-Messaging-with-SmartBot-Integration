@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Field,FormikProvider,useFormik} from 'formik';
 import * as Yup from 'yup';
-import { Avatar, Box, Button, Checkbox, Container, CssBaseline, FormControlLabel, Link, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Checkbox, Container, CssBaseline, FormControlLabel, Link, Paper, TextField, Typography } from '@mui/material';
 import { User, loginDetails } from '../../types';
 import { LockOutlined } from '@mui/icons-material';
 import { login } from '../../redux/User/UserActions';
@@ -32,7 +32,8 @@ const LoginPage: React.FC = () => {
   }, [isAuthenticated, navigate]);
   return (  
     <FormikProvider value={formik}>
-      <Container component="main" maxWidth="xs">
+      <Container maxWidth='xs' component="main" sx={{margin:'auto'}}>
+      <Paper sx={{padding:'20px'}}>
         <CssBaseline />
         <Box
           sx={{
@@ -94,6 +95,7 @@ const LoginPage: React.FC = () => {
             </form>
           </Box>
         </Box>
+        </Paper>
       </Container>
     </FormikProvider>
   );

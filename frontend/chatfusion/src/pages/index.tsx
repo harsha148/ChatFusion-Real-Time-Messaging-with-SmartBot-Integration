@@ -1,8 +1,8 @@
-import ChatHomePage from "./ChatHomePage/ChatHomePage";
+import HomePage from "./HomePage";
 import LoginPage from "./LoginPage";
 import SignupPage from "./SignupPage";
 
-export {ChatHomePage,SignupPage,LoginPage};
+export {HomePage,SignupPage,LoginPage};
 
 
 

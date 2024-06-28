@@ -1,9 +1,10 @@
 import * as React from 'react';
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import Navigation from '../navigation';
-import {ChatHomePage,LoginPage,SignupPage} from '../pages';
+import {LoginPage,SignupPage} from '../pages';
 import { useSelector } from 'react-redux';
 import { RootState } from '../redux/store';
+import HomePage from '../pages/HomePage';
 
 interface IPrivateRouteProps{
   isAuthenticated:boolean,
@@ -14,12 +15,12 @@ interface IPrivateRouteProps{
 export const AppRouter: React.FunctionComponent = () => {
   const isAuthenticated = useSelector((state:RootState) => state.user.isAuthenticated)
   const PrivateRoute = () => {
-    return isAuthenticated ? <ChatHomePage/> : <Navigate to="/login" />;
+    return isAuthenticated ? <HomePage/> : <Navigate to="/login" />;
   };
   console.log('Fetched the react redux store and found isAuthenticated as:', isAuthenticated)
   return (
     <BrowserRouter>
-        {isAuthenticated?<Navigation/>:<></>}
+        {/* {isAuthenticated?<Navigation/>:<></>} */}
         <Routes>
           <Route path='/' element={<PrivateRoute/>}/>
           <Route path='/signup' element={<SignupPage/>}/>

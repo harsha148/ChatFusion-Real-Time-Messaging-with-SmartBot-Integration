@@ -3,7 +3,7 @@ export type loginDetails = {
     password: string
 }
 
-export interface Message {
+export interface MessageType {
     id: number;
     text: string;
     sender: string;
@@ -13,7 +13,7 @@ export interface Message {
   export interface Chat {
     id: number;
     name: string;
-    messages: Message[];
+    messages: MessageType[];
   }
   
   export interface User {

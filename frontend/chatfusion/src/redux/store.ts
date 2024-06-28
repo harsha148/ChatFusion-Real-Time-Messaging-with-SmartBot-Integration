@@ -1,8 +1,10 @@
 import { createStore, combineReducers } from 'redux';
 import userReducer from './User/UserReducer';
+import chatReducer from './Chat/ChatReducers';
 
 const rootReducer = combineReducers({
   user: userReducer,
+  chats:chatReducer
 });
 
 export type RootState = ReturnType<typeof rootReducer>;
