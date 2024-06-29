@@ -1,5 +1,5 @@
 export type loginDetails = {
-    username: string,
+    email: string,
     password: string
 }
 
@@ -20,12 +20,14 @@ export interface MessageType {
     id: number;
     username: string;
   }
-  
-  export interface RootState {
-    user: {
-      isAuthenticated: boolean;
-      user: User | null;
-    };
-    chats: Chat[];
+
+  export interface SignInPayload{
+    email:string,
+    password:string
+  }
+
+  export interface SignInResponse{
+    isAuthenticated:boolean,
+    token:string
   }
   

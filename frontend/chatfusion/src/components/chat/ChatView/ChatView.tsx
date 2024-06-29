@@ -3,7 +3,6 @@ import { useSelector, useDispatch } from 'react-redux';
 import { TextField, Button, Container, List, Typography, Divider, FormControl, InputLabel, OutlinedInput, IconButton, InputAdornment, Stack, Input, styled} from '@mui/material';
 import {MessageType} from '../../../types'
 import * as Yup from 'yup';
-import { RootState } from '../../../types';
 import Message from '../Message';
 import { addMessage } from '../../../redux/Chat/ChatActions';
 import { useAppDispatch } from '../../../redux/hooks';
@@ -11,6 +10,7 @@ import { Box, Paper } from '@mui/material';
 import { makeStyles } from '@material-ui/core';
 import { useTheme } from '@mui/material/styles';
 import { AccountBoxRounded, AccountCircle, Send, Visibility } from '@mui/icons-material';
+import { RootState } from '../../../redux/store';
 
 interface MatchParams {
   id: string;
@@ -96,7 +96,7 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
           </Stack>
         </Paper>
         {/* <Paper style={{overflow: 'auto'}}> */}
-          <List className={classes.messageList} sx={{padding:'10px'}}>
+          <List className={classes.messageList} sx={{paddingLeft:'15%',paddingRight:'15     %'}}>
             {chat.messages.map((message: MessageType) => (
               <Message
                 id = {message.id}

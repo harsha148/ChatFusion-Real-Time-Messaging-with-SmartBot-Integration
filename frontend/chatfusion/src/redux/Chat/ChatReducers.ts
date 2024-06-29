@@ -47,7 +47,7 @@ const initialState: Chat[] = [
     }
 ];
 
-const chatReducer = (state = initialState, action: ChatActionTypes): Chat[] => {
+const chatReducer = (state = initialState, action: any): Chat[] => {
   switch (action.type) {
     case ADD_CHAT:
       return [...state, action.payload];

@@ -21,6 +21,9 @@ import MailIcon from '@mui/icons-material/Mail';
 import ChatHomePage from '../ChatHomePage';
 import { AccountBox, AccountCircle, Settings, Telegram } from '@mui/icons-material';
 import { Menu, MenuItem } from '@mui/material';
+import { useDispatch } from 'react-redux';
+import { ThunkDispatch } from '@reduxjs/toolkit';
+import { loginActions } from '../../redux/Authentication/reducers';
 
 const drawerWidth = 240;
 
@@ -119,6 +122,11 @@ export default function HomePage() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const handleLogout = ()=>{
+    handleClose()
+    dispatch(loginActions.actions.logout())
+  }
 
   return (
     <Box sx={{ display: 'flex', width:'100%'}}>
@@ -169,6 +177,7 @@ export default function HomePage() {
               >
                 <MenuItem onClick={handleClose}>Profile</MenuItem>
                 <MenuItem onClick={handleClose}>My account</MenuItem>
+                <MenuItem onClick={handleLogout}>Logout</MenuItem>
               </Menu>
             </div>
         </Toolbar>

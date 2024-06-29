@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
-
-import { RootState } from '../../../types';
+import { RootState } from '../../../redux/store';
 import { Container, CssBaseline, InputAdornment, List, ListItem, ListItemText, Paper, TextField, Typography } from '@mui/material';
 import { Search } from '@mui/icons-material';
 

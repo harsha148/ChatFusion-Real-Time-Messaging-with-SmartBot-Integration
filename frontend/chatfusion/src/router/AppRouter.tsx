@@ -1,9 +1,9 @@
 import * as React from 'react';
 import {BrowserRouter, Navigate, Route, Routes} from 'react-router-dom';
 import {LoginPage,SignupPage} from '../pages';
-import { useSelector } from 'react-redux';
-import { RootState } from '../redux/store';
+import { RootState, useTypedSelector } from '../redux/store';
 import HomePage from '../pages/HomePage';
+import { useAppSelector } from '../redux/hooks';
 
 interface IPrivateRouteProps{
   isAuthenticated:boolean,
@@ -12,7 +12,7 @@ interface IPrivateRouteProps{
 
 
 export const AppRouter: React.FunctionComponent = () => {
-  const isAuthenticated = useSelector((state:RootState) => state.user.isAuthenticated)
+  const isAuthenticated = useTypedSelector((state:RootState) => state.login.isAuthenticated)
   const PrivateRoute = () => {
     return isAuthenticated ? <HomePage/> : <Navigate to="/login" />;
   };

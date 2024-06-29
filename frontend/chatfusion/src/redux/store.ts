@@ -1,16 +1,26 @@
 import { createStore, combineReducers } from 'redux';
 import userReducer from './User/UserReducer';
 import chatReducer from './Chat/ChatReducers';
+import { loginReducer } from './Authentication/reducers';
+import { TypedUseSelectorHook, useSelector } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
 
-const rootReducer = combineReducers({
-  user: userReducer,
-  chats:chatReducer
-});
+// const rootReducer = combineReducers({
+//   login:loginReducer,
+//   user:userReducer,
+//   chats:chatReducer
+// });
 
-export type RootState = ReturnType<typeof rootReducer>;
 
-const store = createStore(rootReducer);
+const store = configureStore({
+  reducer: {
+    login:loginReducer,
+    user:userReducer,
+    chats:chatReducer
+  }
+})
+export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch
-export type AppStore = typeof store
+export const useTypedSelector: TypedUseSelectorHook<RootState> = useSelector
 export default store;
 

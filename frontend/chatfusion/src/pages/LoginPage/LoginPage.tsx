@@ -1,28 +1,30 @@
 import React, { useEffect } from 'react';
-import { Field,FormikProvider,useFormik} from 'formik';
+import { FormikProvider,useFormik} from 'formik';
 import * as Yup from 'yup';
 import { Avatar, Box, Button, Container, CssBaseline, Link, Paper, TextField, Typography } from '@mui/material';
-import { User, loginDetails } from '../../types';
+import { loginDetails } from '../../types';
 import { LockOutlined } from '@mui/icons-material';
-import { login } from '../../redux/User/UserActions';
-import { useAppDispatch, useAppSelector } from '../../redux/hooks';
+import { useAppSelector } from '../../redux/hooks';
 import { useNavigate } from 'react-router-dom';
+import { loginActions } from '../../redux/Authentication/reducers';
+import { useDispatch } from 'react-redux';
+import { ThunkDispatch } from '@reduxjs/toolkit';
 
 const LoginSchema = Yup.object().shape({
-  username: Yup.string().required('Required'),
+  email: Yup.string().required('Required'),
   password: Yup.string().required('Required'),
 });
 
 const LoginPage: React.FC = () => {
-  const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated)
-  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.login.isAuthenticated)
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const navigate = useNavigate();
   const formik = useFormik({
-        initialValues:{ username: '', password: '' },
+        initialValues:{ email: '', password: '' },
         validationSchema:LoginSchema,
         onSubmit:(values:loginDetails) => {
             console.log("Json value for the login details submitted: ", JSON.stringify(values, null, 2))
-            dispatch(login({id:1,username:values.username}))
+            dispatch(loginActions.login({email:values.email,password:values.password}))
         }
     })
   useEffect(() => {
@@ -55,14 +57,14 @@ const LoginPage: React.FC = () => {
           <Box sx={{ mt: 1 }}>
             <form className="flex-col items-center" onSubmit={formik.handleSubmit}>
             <TextField
-                name="username"
+                name="email"
                 placeholder="john8642@gmail.com"
                 fullWidth
                 variant='outlined'
-                value = {formik.values.username}
+                value = {formik.values.email}
                 onChange = {formik.handleChange}
-                error={formik.touched.username && !!formik.errors.username}
-                helperText={formik.touched.username && formik.errors.username}
+                error={formik.touched.email && !!formik.errors.email}
+                helperText={formik.touched.email && formik.errors.email}
                 margin="normal"
                 // autoComplete="email"
             />
