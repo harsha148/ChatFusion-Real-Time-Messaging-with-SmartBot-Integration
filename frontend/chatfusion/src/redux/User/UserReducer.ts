@@ -1,6 +1,6 @@
 import { Navigate, redirect, useNavigate } from 'react-router-dom';
-import { User } from '../../types';
 import { LOGIN, LOGOUT, UserActionTypes } from './UserActions';
+import { User } from '../../types';
 
 interface UserState {
   isAuthenticated: boolean;

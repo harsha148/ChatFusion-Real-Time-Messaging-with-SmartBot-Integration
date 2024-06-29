@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Field,FormikProvider,useFormik} from 'formik';
 import * as Yup from 'yup';
-import { Avatar, Box, Button, Checkbox, Container, CssBaseline, FormControlLabel, Link, Paper, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Container, CssBaseline, Link, Paper, TextField, Typography } from '@mui/material';
 import { User, loginDetails } from '../../types';
 import { LockOutlined } from '@mui/icons-material';
 import { login } from '../../redux/User/UserActions';
@@ -41,9 +41,12 @@ const LoginPage: React.FC = () => {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
+            marginBottom:8,
+            padding:5
           }}
         >
-          <Avatar sx={{ m: 1, bgcolor: 'background.primary' }}>
+          <Typography component='h3' variant='h4'>ChatFusion</Typography>
+          <Avatar sx={{ m: 1, bgcolor: 'grey' }}>
             <LockOutlined />
           </Avatar>
           <Typography component="h1" variant="h5">
@@ -53,37 +56,30 @@ const LoginPage: React.FC = () => {
             <form className="flex-col items-center" onSubmit={formik.handleSubmit}>
             <TextField
                 name="username"
-                // label="Username"
                 placeholder="john8642@gmail.com"
                 fullWidth
-                variant="outlined"
-                // className="mb-4"
+                variant='outlined'
                 value = {formik.values.username}
                 onChange = {formik.handleChange}
                 error={formik.touched.username && !!formik.errors.username}
                 helperText={formik.touched.username && formik.errors.username}
                 margin="normal"
-                autoComplete="email"
-                autoFocus
+                // autoComplete="email"
             />
             <TextField
                 name="password"
                 type="password"
                 fullWidth
+                variant='outlined'
                 placeholder='John@213'
-                variant="outlined"
                 value={formik.values.password}
                 onChange = {formik.handleChange}
                 className="mb-4"
                 error={formik.touched.password && !! formik.errors.password}
                 helperText={formik.touched.password && formik.errors.password}
                 margin="normal"
-                autoComplete="current-password"
+                // autoComplete="current-password"
             />
-            {/* <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            /> */}
             <Button type="submit" fullWidth color="primary"
               variant="contained"
               sx={{ mt: 3, mb: 2 }}>

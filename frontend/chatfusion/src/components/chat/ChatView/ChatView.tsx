@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { ChangeEvent, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { TextField, Button, Container, List, Typography, Divider} from '@mui/material';
+import { TextField, Button, Container, List, Typography, Divider, FormControl, InputLabel, OutlinedInput, IconButton, InputAdornment, Stack, Input, styled} from '@mui/material';
 import {MessageType} from '../../../types'
 import * as Yup from 'yup';
 import { RootState } from '../../../types';
@@ -10,6 +10,7 @@ import { useAppDispatch } from '../../../redux/hooks';
 import { Box, Paper } from '@mui/material';
 import { makeStyles } from '@material-ui/core';
 import { useTheme } from '@mui/material/styles';
+import { AccountBoxRounded, AccountCircle, Send, Visibility } from '@mui/icons-material';
 
 interface MatchParams {
   id: string;
@@ -52,48 +53,88 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
   const chat = useSelector((state: RootState) =>
     state.chats.find((chat) => chat.id === chatId)
   );
+  const [message,setMessage] = useState<string>('')
   const theme = useTheme()
   if (!chat) {
     return <div>Chat not found</div>;
   }
+  const handleSendMessage = ()=>{
+    console.log('Sending Message',message)
+    setMessage('')
+  }
+
+  const onMessageChange = (e:ChangeEvent<HTMLTextAreaElement | HTMLInputElement>)=>{
+    e.preventDefault()
+    setMessage(e.target.value)
+  }
+
+  const styles = {
+    paperContainer: {
+        backgroundImage: `url(${"/../img/background.png"})`
+    },
+  };
+
+  const MyMessageBox = styled('div')({
+    position: 'fixed',
+    bottom: 0,
+    width: '100%',
+    height: 60,
+    textAlign: 'center',
+    alignContent:'bottom'
+  });
+  
   
   return (
-    <Container className="flex-col h-full overflow-hidden" disableGutters sx={{margin:0}}>
-      <Paper className='h-full' sx={{padding:0}}>
-        <Paper sx={{ bgcolor: theme.palette.grey[600], height: '6%', padding: 0, display:'flex', borderRadius:0}}>
-          <Typography align='center' variant="h5" sx={{padding:'10px', my:'auto'}}>
-            {chat.name}
-          </Typography>
+    <Container maxWidth={false} className="flex-col h-full overflow-hidden w-full" disableGutters sx={{margin:0, width:'100%'}}>
+      <Paper className='h-full' sx={{padding:0}} style={styles.paperContainer}>
+        <Paper sx={{ bgcolor: theme.palette.grey[800], height: '6%', padding: 0, display:'flex', borderRadius:0}}>
+          <Stack direction="row" alignItems="center" gap={1} sx={{paddingLeft:'5px'}}>
+            <AccountCircle fontSize='large'/>
+            <Typography align='center' variant="body1" sx={{my:'auto'}}>
+              {chat.name}
+            </Typography>
+          </Stack>
         </Paper>
-        
-        <List className={classes.messageList} sx={{padding:'10px'}}>
-          {chat.messages.map((message: MessageType) => (
-            <Message
-              id = {message.id}
-              sender = {message.sender}
-              text = {message.text}
-              timestamp={message.timestamp}
+        {/* <Paper style={{overflow: 'auto'}}> */}
+          <List className={classes.messageList} sx={{padding:'10px'}}>
+            {chat.messages.map((message: MessageType) => (
+              <Message
+                id = {message.id}
+                sender = {message.sender}
+                text = {message.text}
+                timestamp={message.timestamp}
+              />
+            ))}
+          </List>
+        {/* </Paper> */}
+        {/* <Divider sx={{marginTop:'auto'}}/> */}
+        <MyMessageBox>
+          <FormControl  sx={{width:'100%', height:'100%'}} variant="outlined">
+            <TextField
+              id="sendMessage"
+              type='text'
+              placeholder='Send Message...'
+              value = {message}
+              onChange = {onMessageChange}
+              InputProps={{
+                endAdornment:(
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleSendMessage}
+                    edge="end"
+                  >
+                    <Send/>
+                  </IconButton>
+                </InputAdornment>),
+                style: {
+                  borderRadius: "0px",
+                }
+              }}
+              sx={{marginTop:'auto'}}
             />
-          ))}
-        </List>
-        <Divider/>
-        <Box className='mt-auto w-full'>
-          <TextField
-            name="text"
-            label="Type a message"
-            variant="outlined"
-            size="small"
-            InputProps={{
-              style: {
-                borderRadius: 0,
-              }
-            }}
-          />
-
-          <Button type="submit" variant="contained" color="primary" className={classes.sendButton}>
-            Send
-          </Button>
-        </Box>
+          </FormControl>
+        </MyMessageBox>
       </Paper>
     </Container>
   );

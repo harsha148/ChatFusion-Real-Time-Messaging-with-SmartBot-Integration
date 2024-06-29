@@ -3,8 +3,8 @@ import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 
 import { RootState } from '../../../types';
-import { Box, Container, Divider, List, ListItem, ListItemText, Paper, TextField, Typography } from '@mui/material';
-import { useTheme } from '@mui/material/styles';
+import { Container, CssBaseline, InputAdornment, List, ListItem, ListItemText, Paper, TextField, Typography } from '@mui/material';
+import { Search } from '@mui/icons-material';
 
 const ChatList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -13,44 +13,48 @@ const ChatList: React.FC = () => {
   const filteredChats = chats.filter((chat) =>
     chat.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  const theme = useTheme()
   return (
-    <Container className="flex-col h-full overflow-hidden" disableGutters>
+    <Container maxWidth={false} className="h-full w-full" disableGutters >
       <Paper className='h-full'>
-        <Paper sx={{ bgcolor: theme.palette.grey[600], height: '6%', padding: 0, display:'flex', borderRadius:0}}>
-            <Typography align='center' variant="h5" sx={{padding:'10px', my:'auto'}}>
-                Chats
-            </Typography>
-        </Paper>
+        <Typography align='left' variant="h5" sx={{height: '6%',padding:'10px', my:'auto'}}>
+            Chats
+        </Typography>
         <TextField
           variant="outlined"
           fullWidth
-          placeholder="Search chats"
+          placeholder="Search or start a new chat"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           InputProps={{
+            startAdornment:(
+              <InputAdornment position="start">
+                  <Search />
+              </InputAdornment>),
             style: {
-              borderRadius: "0px",
+              borderRadius: "10px",
             }
           }}
+          sx={{padding:'10px'}}
         />
-        <List className="flex-grow overflow-auto">
-          {filteredChats.map((chat) => (
-            <div key={chat.id}>
-              <ListItem button component={Link} to={`/chat/${chat.id}`}>
-                <ListItemText
-                  primary={chat.name}
-                  secondary={
-                    chat.messages.length > 0
-                      ? chat.messages[chat.messages.length - 1].text
-                      : 'No messages yet'
-                  }
-                />
-              </ListItem>
-              <Divider />
-            </div>
-          ))}
-        </List>
+        {/* <Paper style={{overflow: 'auto'}}> */}
+          <List className="flex-grow overflow-auto">
+            {filteredChats.map((chat) => (
+              <div key={chat.id}>
+                <ListItem button component={Link} to={`/chat/${chat.id}`}>
+                  <ListItemText
+                    primary={chat.name}
+                    secondary={
+                      chat.messages.length > 0
+                        ? chat.messages[chat.messages.length - 1].text
+                        : 'No messages yet'
+                    }
+                  />
+                </ListItem>
+                {/* <Divider /> */}
+              </div>
+            ))}
+          </List>
+        {/* </Paper> */}
       </Paper>
     </Container>
   );
