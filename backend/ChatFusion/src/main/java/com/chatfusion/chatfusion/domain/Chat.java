@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Chat {
@@ -23,11 +25,11 @@ public class Chat {
     }
 
     @ManyToMany
-    private HashSet<User> admins = new HashSet<User>();
+    private Set<User> admins = new HashSet<>();
     @ManyToOne
     private User createdBy;
     @ManyToMany
-    private HashSet<User> users = new HashSet<User>();
+    private Set<User> users = new HashSet<User>();
 
     @Override
     public String toString() {
@@ -42,7 +44,7 @@ public class Chat {
                 '}';
     }
 
-    public Chat(int id, boolean isGroup, String groupName, HashSet<User> admins, User createdBy, HashSet<User> users, ArrayList<Message> messages) {
+    public Chat(int id, boolean isGroup, String groupName, Set<User> admins, User createdBy, Set<User> users, List<Message> messages) {
         this.id = id;
         this.isGroup = isGroup;
         this.groupname = groupName;
@@ -56,7 +58,7 @@ public class Chat {
 
     }
 
-    public ArrayList<Message> getMessages() {
+    public List<Message> getMessages() {
         return messages;
     }
 
@@ -64,11 +66,11 @@ public class Chat {
         this.messages = messages;
     }
 
-    public HashSet<User> getUsers() {
+    public Set<User> getUsers() {
         return users;
     }
 
-    public void setUsers(HashSet<User> members) {
+    public void setUsers(Set<User> members) {
         this.users = members;
     }
 
@@ -80,11 +82,11 @@ public class Chat {
         this.createdBy = createdBy;
     }
 
-    public HashSet<User> getAdmins() {
+    public Set<User> getAdmins() {
         return admins;
     }
 
-    public void setAdmins(HashSet<User> admins) {
+    public void setAdmins(Set<User> admins) {
         this.admins = admins;
     }
 
@@ -97,7 +99,7 @@ public class Chat {
     }
 
     @OneToMany
-    private ArrayList<Message> messages;
+    private List<Message> messages=new ArrayList<>();;
 
     public void setId(int id) {
         this.id = id;

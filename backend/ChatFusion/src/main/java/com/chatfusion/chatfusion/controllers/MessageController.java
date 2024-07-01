@@ -27,8 +27,8 @@ public class MessageController {
     @Autowired
     public IUserService userService;
 
-    @PostMapping
-    public ResponseEntity<Message> sendMessage(@RequestBody SendMessageRequest sendMessageRequest, @RequestHeader("Authorization") String token) throws UserException, ChatException {
+    @PostMapping("/sendMessage")
+    public ResponseEntity<Message> sendMessage(@ModelAttribute SendMessageRequest sendMessageRequest, @RequestHeader("Authorization") String token) throws UserException, ChatException {
         User sender = this.userService.findUserByJWT(token);
         sendMessageRequest.setUserId(sender.getId());
         Message message = this.messageService.sendMessage(sendMessageRequest);

@@ -24,6 +24,9 @@ import { Menu, MenuItem } from '@mui/material';
 import { useDispatch } from 'react-redux';
 import { ThunkDispatch } from '@reduxjs/toolkit';
 import { loginActions } from '../../redux/Authentication/reducers';
+import { chatActions } from '../../redux/Chat/ChatReducers';
+import { useEffect } from 'react';
+import { userActions } from '../../redux/User/UserReducer';
 
 const drawerWidth = 240;
 
@@ -98,7 +101,7 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 );
 
 export default function HomePage() {
-    const [auth, setAuth] = React.useState(true);
+  const [auth, setAuth] = React.useState(true);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -114,7 +117,9 @@ export default function HomePage() {
   };
   const theme = useTheme();
   const [open, setOpen] = React.useState(false);
-
+  // useEffect(()=>{
+  //   dispatch(userActions.allUsers(''))
+  // },[])
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -127,6 +132,10 @@ export default function HomePage() {
     handleClose()
     dispatch(loginActions.actions.logout())
   }
+  dispatch(userActions.userProfile(''))
+  useEffect(()=>{
+    // dispatch(chatActions.userChats(''))
+  },[])
 
   return (
     <Box sx={{ display: 'flex', width:'100%'}}>

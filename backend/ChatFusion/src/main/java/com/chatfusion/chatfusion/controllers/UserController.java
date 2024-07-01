@@ -19,6 +19,19 @@ public class UserController {
     @Autowired
     private IUserService userService;
 
+    @GetMapping("/allusers")
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = List.of();
+
+        try{
+            users = this.userService.getAllUsers();
+        }
+        catch (UserException e) {
+            return new ResponseEntity<List<User>>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<List<User>>(users, HttpStatus.OK);
+    }
+
     @GetMapping("/{query}")
     public ResponseEntity<List<User>> searchUserHandler(@PathVariable("query") String query){
         List<User> users = List.of();

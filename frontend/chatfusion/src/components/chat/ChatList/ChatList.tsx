@@ -1,29 +1,124 @@
-import React, { useState } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { RootState } from '../../../redux/store';
-import { Container, CssBaseline, InputAdornment, List, ListItem, ListItemText, Paper, TextField, Typography } from '@mui/material';
-import { Search } from '@mui/icons-material';
+import { Container, CssBaseline, Dialog, DialogContent, DialogTitle, Fab, IconButton, InputAdornment, List, ListItem, ListItemButton, ListItemText, Paper, PaperProps, Stack, TextField, Typography, useTheme } from '@mui/material';
+import { CarCrashTwoTone, PlaylistAdd, Search } from '@mui/icons-material';
+import { ThunkDispatch } from '@reduxjs/toolkit';
+import { useAppSelector } from '../../../redux/hooks';
+import { userActions } from '../../../redux/User/UserReducer';
+import { Chat, User } from '../../../types';
+import NewChat from '../NewChat';
+import Draggable from 'react-draggable';
+import { chatActions } from '../../../redux/Chat/ChatReducers';
+import NewGroup from '../NewGroup';
+import ChatHomePage from '../../../pages/ChatHomePage';
+
+function PaperComponent(props: PaperProps) {
+  return (
+    <Draggable
+      handle="#draggable-dialog-title"
+      cancel={'[class*="MuiDialogContent-root"]'}
+    >
+      <Paper {...props} />
+    </Draggable>
+  );
+}
 
 const ChatList: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const chats = useSelector((state: RootState) => state.chats);
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  useEffect(()=>{
+    dispatch(chatActions.userChats(''))
+  },[])
+  const chats:Chat[] = useAppSelector((state: RootState) => state.chats.userChats);
+  const handleSearch = (searchQuery:string)=>{
+    console.log('Dispatching search user action with search query:'+searchQuery)
+    if(searchQuery!=''){
+      dispatch(userActions.searchUser(searchQuery))
+    }
+  }
+  useEffect(()=>{
+    if(searchTerm==''){
+      filteredChats = chats
+    }
+    else{
+      filteredChats = chats.filter((chat)=>{
+        (chat.isGroup && chat.groupname.includes(searchTerm)) || (!chat.isGroup && (chat.users[0].username.includes(searchTerm)||(chat.users[1].username.includes(searchTerm))))
+      })
+    }
+  },[searchTerm])
+  console.log('Loaded userChats from store into ChatLIST')
+  console.log(chats)
+  var filteredChats:Chat[] = chats
 
-  const filteredChats = chats.filter((chat) =>
-    chat.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // if (chats?.length>0){
+  //   filteredChats.concat(chats.filter((chat) =>{
+  //       chat.isGroup && chat.groupname.toLowerCase().includes(searchTerm.toLowerCase())
+  //   })).concat(chats.filter((chat) =>{
+  //     !chat.isGroup && chat.groupname.toLowerCase().includes(searchTerm.toLowerCase())
+  // }));
+  // }
+  // useEffect(()=>{
+  //   console.log('Updated user chats:')
+  //   console.log(chats)
+  // },[chats])
+  console.log('Filtered userChats from store into ChatLIST')
+  console.log(filteredChats)
+  // useEffect(()=>{
+  //   dispatch(chatActions.userChats(''))
+  // },[useAppSelector((state:RootState)=>state.chats.loadChats)])
+  // const searchResults =   useAppSelector(state=>state.user.searchUsersResult)
+  // if(searchTerm.length>0){
+  //   // filteredChats = searchResults
+  // }
+  const [newChatOpen, setNewChatOpen] = useState(false)
+  const [newGroupOpen, setNewGroupOpen] = useState(false)
+  const handleNewChatClose = ()=>{
+    setNewChatOpen(false)
+  }
+  const handleNewGroupClose = () =>{
+    setNewGroupOpen(false)
+  }
+  const handleNewGroupOpen = () =>{
+    setNewChatOpen(false)
+    setNewGroupOpen(true)
+  }
+
+  const handleChatClick = (chatId:number)=>{
+    dispatch(chatActions.actions.SET_CURRENT_CHAT(chatId))
+  }
+  const currentUser = useAppSelector(state=>state.user.currentUser)
+  const theme = useTheme()
   return (
+    
     <Container maxWidth={false} className="h-full w-full" disableGutters >
-      <Paper className='h-full'>
-        <Typography align='left' variant="h5" sx={{height: '6%',padding:'10px', my:'auto'}}>
-            Chats
-        </Typography>
+      {newChatOpen && !newGroupOpen && (<Paper className='h-full'>
+         <NewChat handleClose={handleNewChatClose} handleNewGroup={handleNewGroupOpen}/>
+      </Paper>)}
+      {newGroupOpen && !newChatOpen && (<Paper className='h-full'>
+        <NewGroup handleClose={handleNewGroupClose}/>
+      </Paper>)}
+      {!newChatOpen && !newGroupOpen &&(<Paper className='h-full'>
+        <Stack sx={{height:'60px'}} direction='row' justifyContent="space-between" alignItems="center">
+          <Typography align='left' variant="h5" sx={{padding:'10px'}}>
+              Chats
+          </Typography>
+          <IconButton onClick={()=>{
+            setNewChatOpen(true)
+          }}>
+            <PlaylistAdd />
+          </IconButton>
+        </Stack>
         <TextField
           variant="outlined"
           fullWidth
           placeholder="Search or start a new chat"
           value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          onChange={(e) => {
+            setSearchTerm(e.target.value)
+            handleSearch(e.target.value)
+          }}
           InputProps={{
             startAdornment:(
               <InputAdornment position="start">
@@ -39,22 +134,24 @@ const ChatList: React.FC = () => {
           <List className="flex-grow overflow-auto">
             {filteredChats.map((chat) => (
               <div key={chat.id}>
-                <ListItem button component={Link} to={`/chat/${chat.id}`}>
-                  <ListItemText
-                    primary={chat.name}
-                    secondary={
-                      chat.messages.length > 0
-                        ? chat.messages[chat.messages.length - 1].text
-                        : 'No messages yet'
-                    }
-                  />
+                <ListItem>
+                  <ListItemButton id={String(chat.id)} onClick={(event)=>{handleChatClick(chat.id)}}>
+                    <ListItemText
+                      primary={chat.isGroup?chat.groupname:(chat.users[0].username==currentUser?.username?chat.users[1].username:chat.users[0].username)}
+                      // primary = {chat.groupname}
+                      secondary={
+                        chat.messages.length > 0
+                          ? chat.messages[chat.messages.length - 1].content
+                          : 'No messages yet'
+                      }
+                    />
+                  </ListItemButton>
                 </ListItem>
                 {/* <Divider /> */}
               </div>
             ))}
           </List>
-        {/* </Paper> */}
-      </Paper>
+      </Paper>)}
     </Container>
   );
 };

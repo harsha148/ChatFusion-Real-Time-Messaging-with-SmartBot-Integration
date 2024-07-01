@@ -1,16 +1,18 @@
-import React, { ChangeEvent, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { TextField, Button, Container, List, Typography, Divider, FormControl, InputLabel, OutlinedInput, IconButton, InputAdornment, Stack, Input, styled} from '@mui/material';
-import {MessageType} from '../../../types'
+import {Chat, MessageType, SendMessagePayload} from '../../../types'
 import * as Yup from 'yup';
 import Message from '../Message';
-import { addMessage } from '../../../redux/Chat/ChatActions';
-import { useAppDispatch } from '../../../redux/hooks';
+import { useAppSelector } from '../../../redux/hooks';
 import { Box, Paper } from '@mui/material';
 import { makeStyles } from '@material-ui/core';
 import { useTheme } from '@mui/material/styles';
-import { AccountBoxRounded, AccountCircle, Send, Visibility } from '@mui/icons-material';
+import { AccountBoxRounded, AccountCircle, Call, CallOutlined, DuoOutlined, Search, Send, VideoCall, VideoCallOutlined, Visibility } from '@mui/icons-material';
 import { RootState } from '../../../redux/store';
+import { useDispatch } from 'react-redux';
+import { ThunkDispatch } from '@reduxjs/toolkit';
+import { MessageActions } from '../../../redux/Messages/MessageReducers';
+import { chatActions } from '../../../redux/Chat/ChatReducers';
 
 interface MatchParams {
   id: string;
@@ -48,74 +50,110 @@ const useStyles = makeStyles((theme) => ({
 
 const ChatView: React.FC<MatchParams> = ({id}) => {
   const classes = useStyles();
-  const dispatch = useAppDispatch();
-  const chatId = parseInt(id, 10);
-  const chat = useSelector((state: RootState) =>
-    state.chats.find((chat) => chat.id === chatId)
-  );
+  const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
+  const chatId = useAppSelector(store=>store.chats.selectedChatId);
+  useEffect(()=>{
+    if(chatId){
+      dispatch(chatActions.getChatMessages(chatId))
+    }
+  },[chatId])
+  
+  const currentUser = useAppSelector(state=>state.user.currentUser)
+  const chats = useAppSelector((state: RootState) =>state.chats.userChats)
+  var chat = useAppSelector(store=>store.chats.currentActiveChat)
+  const currentChatMessages = useAppSelector(store=>store.chats.currentChatMessages)
   const [message,setMessage] = useState<string>('')
   const theme = useTheme()
-  if (!chat) {
-    return <div>Chat not found</div>;
-  }
-  const handleSendMessage = ()=>{
-    console.log('Sending Message',message)
-    setMessage('')
+  const handleSendMessage = (e:any)=>{
+    e.preventDefault()
+    if(message.length>0){
+      console.log('Sending Message',message)
+      const sendMessageReq:SendMessagePayload={
+        userId:currentUser?.id,
+        chatId:chatId,
+        content:message
+      }
+      dispatch(MessageActions.sendMessage(sendMessageReq))
+      setMessage('')
+    }
   }
 
-  const onMessageChange = (e:ChangeEvent<HTMLTextAreaElement | HTMLInputElement>)=>{
-    e.preventDefault()
-    setMessage(e.target.value)
-  }
+  useEffect(()=>{
+    console.log('Current Chat updated')
+    console.log(chat)
+  },[chat])
+
 
   const styles = {
     paperContainer: {
         backgroundImage: `url(${"/../img/background.png"})`
     },
+    circleImg: {
+      borderRadius:'50%'
+    },
+    sendMessage:{
+      // position: 'fixed',
+      bottom: 0,
+      width: '100%',
+      height: 60,
+      // textAlign: 'center',
+      alignContent:'bottom'
+    }
   };
-
-  const MyMessageBox = styled('div')({
-    position: 'fixed',
-    bottom: 0,
-    width: '100%',
-    height: 60,
-    textAlign: 'center',
-    alignContent:'bottom'
-  });
-  
-  
+  if(!chat||!currentUser){
+    return (
+      <Container maxWidth={false} className="flex-col h-full overflow-hidden w-full" disableGutters sx={{margin:0, width:'100%'}}>
+        <Paper className='h-full' sx={{padding:0}} style={styles.paperContainer}>
+          <Stack className='w-full h-full' direction='column' alignItems='center' justifyContent='center'>
+            <img style={styles.circleImg} src='https://store-images.s-microsoft.com/image/apps.58144.13921645428983582.68aba529-9be2-4278-9a48-793b90e6b4e7.8d236fd2-34bb-4785-808f-6fc9f4850410?h=464' width='200' height='200'></img>
+            <Typography variant='h5'>
+              Welcome to ChatFusion
+            </Typography>
+          </Stack>
+          
+        </Paper>
+      </Container>
+    )
+  }
+  console.log('Current chat from Chat view')
+  console.log(chat)
   return (
     <Container maxWidth={false} className="flex-col h-full overflow-hidden w-full" disableGutters sx={{margin:0, width:'100%'}}>
       <Paper className='h-full' sx={{padding:0}} style={styles.paperContainer}>
         <Paper sx={{ bgcolor: theme.palette.grey[800], height: '6%', padding: 0, display:'flex', borderRadius:0}}>
-          <Stack direction="row" alignItems="center" gap={1} sx={{paddingLeft:'5px'}}>
-            <AccountCircle fontSize='large'/>
-            <Typography align='center' variant="body1" sx={{my:'auto'}}>
-              {chat.name}
-            </Typography>
+          <Stack className='w-full' direction='row' alignItems='center' justifyContent='space-between'>
+            <Stack direction="row" alignItems="center" gap={1} sx={{paddingLeft:'5px'}}>
+              <AccountCircle fontSize='large'/>
+              <Typography align='center' variant="body1" sx={{my:'auto'}}>
+                {chat.isGroup?chat.groupname:(chat.users[0].username==currentUser?.username?chat.users[1].username:chat.users[0].username)}
+              </Typography>
+            </Stack>
+            <Stack direction='row' spacing={1} sx={{paddingRight:'2%'}}>
+              <IconButton><DuoOutlined/></IconButton>
+              <IconButton><CallOutlined/></IconButton>
+              <IconButton><Search/></IconButton>
+            </Stack>
           </Stack>
         </Paper>
-        {/* <Paper style={{overflow: 'auto'}}> */}
-          <List className={classes.messageList} sx={{paddingLeft:'15%',paddingRight:'15     %'}}>
-            {chat.messages.map((message: MessageType) => (
+          <List className={classes.messageList} sx={{paddingLeft:'15%',paddingRight:'15%'}}>
+            {currentChatMessages.map((message: MessageType) => (
               <Message
                 id = {message.id}
-                sender = {message.sender}
-                text = {message.text}
+                user = {message.user}
+                content = {message.content}
                 timestamp={message.timestamp}
+                chat={undefined}
               />
             ))}
           </List>
-        {/* </Paper> */}
-        {/* <Divider sx={{marginTop:'auto'}}/> */}
-        <MyMessageBox>
+        <form style={{height:'60px',position:'fixed',bottom:0,width:'-webkit-fill-available'}} onSubmit={handleSendMessage}>
           <FormControl  sx={{width:'100%', height:'100%'}} variant="outlined">
             <TextField
               id="sendMessage"
               type='text'
               placeholder='Send Message...'
               value = {message}
-              onChange = {onMessageChange}
+              onChange = {(e)=>{e.preventDefault();setMessage(e.target.value)}}
               InputProps={{
                 endAdornment:(
                 <InputAdornment position="end">
@@ -127,14 +165,14 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
                     <Send/>
                   </IconButton>
                 </InputAdornment>),
-                style: {
+                style: { 
                   borderRadius: "0px",
                 }
               }}
               sx={{marginTop:'auto'}}
             />
           </FormControl>
-        </MyMessageBox>
+        </form>
       </Paper>
     </Container>
   );

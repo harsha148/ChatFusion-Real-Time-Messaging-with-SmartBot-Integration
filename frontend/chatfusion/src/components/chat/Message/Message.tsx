@@ -12,10 +12,10 @@ interface MessageProps {
 
 const Message: React.FC<MessageType> = (message) => {
 
-    const currentUser = useAppSelector(store=>store.user.user)
+    const currentUser = useAppSelector(state=>state.user.currentUser)
     console.log('Fetched the current user name:', currentUser?.username)
-    const isCurrentUser = (message.sender == currentUser?.username)
-    console.log('Comparing it with current message sender: ',message.sender)
+    const isCurrentUser = (message.user.username == currentUser?.username)
+    console.log('Comparing it with current message sender: ',message.user)
     console.log('isCurrentUser:',isCurrentUser)
     const lm = isCurrentUser?'auto':'2px'
     const theme = useTheme()
@@ -24,11 +24,11 @@ const Message: React.FC<MessageType> = (message) => {
             isCurrentUser ? 'ml-auto' : ''
             }`}>
             <Typography variant='caption'>
-                {message.sender}
+                {message.user.username}
             </Typography>
             <Paper sx={{bgcolor: isCurrentUser?theme.palette.grey[500]:'primary.dark' ,padding:'10px', borderRadius:'2',paddingRight:'30px'}}>
                 <Typography>
-                    {message.text}
+                    {message.content}
                 </Typography>
             </Paper>
             <Typography variant='caption' className='ml-auto'>

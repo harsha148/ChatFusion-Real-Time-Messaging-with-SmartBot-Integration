@@ -28,6 +28,11 @@ public class UserService implements IUserService{
     }
 
     @Override
+    public List<User> getAllUsers() throws UserException {
+        return userRepository.findAll();
+    }
+
+    @Override
     public User findUserByEmail(String email) throws UserException {
         if(email == null || email.isEmpty()){
             throw new UserException("Email is null or empty");

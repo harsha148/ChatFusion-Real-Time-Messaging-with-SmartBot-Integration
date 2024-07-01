@@ -6,9 +6,9 @@ public class SendMessageRequest {
     private Integer chatId;
     private String content;
 
-    public SendMessageRequest(Integer userId, Integer chatId, String content) {
-        this.userId = userId;
-        this.chatId = chatId;
+    public SendMessageRequest(String userId, String chatId, String content) {
+        this.userId = Integer.parseInt(userId);
+        this.chatId = Integer.parseInt(chatId);
         this.content = content;
     }
 

@@ -1,26 +1,87 @@
+import { createAsyncThunk } from '@reduxjs/toolkit';
 import { Chat, MessageType } from '../../types';
+import { BASE_API_URL } from '../../constants';
+import { url } from 'inspector';
+import axios, { AxiosError } from 'axios';
 
-export const ADD_CHAT = 'ADD_CHAT';
-export const ADD_MESSAGE = 'ADD_MESSAGE';
+export const userChats = createAsyncThunk(
+  'chats/userchats',
+  async(token: string,thunkApi)=>{
+      console.log('Invoking API with URL: '+BASE_API_URL+'/chat/userchats')
+      try
+      {
+          const response = await axios({
+            method:'GET',
+            url:BASE_API_URL+'/chat/userchats',
+            headers:{
+                content:'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          console.log(response)
+          return thunkApi.fulfillWithValue(response.data)
+      }
+      catch(err){
+          console.log('Error occurred while calling the sigin endpoint: ', err)
+          const error = err as AxiosError 
+          thunkApi.rejectWithValue(error.response?.status)
+      }
+  }
+)
 
-interface AddChatAction {
-  type: typeof ADD_CHAT;
-  payload: Chat;
-}
+export const createUserChat = createAsyncThunk(
+  'chats/createUserChat',
+  async(userId: number,thunkApi)=>{
+      console.log('Invoking API with URL: '+BASE_API_URL+'/chat/createnongrpchat')
+      try
+      {
+          const data = new FormData()
+          data.append('toUserId',String(userId))
+          const response = await axios({
+            method:'POST',
+            url:BASE_API_URL+'/chat/createnongrpchat',
+            headers:{
+                content:'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+            data:data
+          });
+          console.log(response)
+          return thunkApi.fulfillWithValue<Chat>(response.data)
+          // .get(`${BASE_API_URL}/authentication/signin`)
+      }
+      catch(err){
+          console.log('Error occurred while calling the sigin endpoint: ', err)
+          const error = err as AxiosError
+          thunkApi.rejectWithValue(error.response?.status)
+      }
+  }
+)
 
-interface AddMessageAction {
-  type: typeof ADD_MESSAGE;
-  payload: { chatId: number; message: MessageType };
-}
+export const getChatMessages = createAsyncThunk(
+  'chats/getChatMessages',
+  async(chatId:number,thunkApi)=>{
+      console.log('Invoking API with URL: '+BASE_API_URL+'/api/messages/'+chatId)
+      try
+      {
+          const response = await axios({
+            method:'GET',
+            url:BASE_API_URL+'/api/messages/'+chatId,
+            headers:{
+                content:'application/json',
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          console.log('Response from get chat messages endpoint')
+          console.log(response.data)
+          return thunkApi.fulfillWithValue<MessageType[]>(response.data)
+          // .get(`${BASE_API_URL}/authentication/signin`)
+      }
+      catch(err){
+          console.log('Error occurred while calling the get chat endpoint: ', err)
+          const error = err as AxiosError
+          thunkApi.rejectWithValue(error.response?.status)
+      }
+  }
+)
 
-export type ChatActionTypes = AddChatAction | AddMessageAction;
-
-export const addChat = (chat: Chat): ChatActionTypes => ({
-  type: ADD_CHAT,
-  payload: chat,
-});
-
-export const addMessage = (chatId: number, message: MessageType): ChatActionTypes => ({
-  type: ADD_MESSAGE,
-  payload: { chatId, message },
-});

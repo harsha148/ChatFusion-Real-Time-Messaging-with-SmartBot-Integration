@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { FormikProvider,useFormik} from 'formik';
 import * as Yup from 'yup';
 import { Avatar, Box, Button, Container, CssBaseline, Link, Paper, TextField, Typography } from '@mui/material';
-import { loginDetails } from '../../types';
+import { LoginDetails } from '../../types';
 import { LockOutlined } from '@mui/icons-material';
 import { useAppSelector } from '../../redux/hooks';
 import { useNavigate } from 'react-router-dom';
@@ -11,7 +11,7 @@ import { useDispatch } from 'react-redux';
 import { ThunkDispatch } from '@reduxjs/toolkit';
 
 const LoginSchema = Yup.object().shape({
-  email: Yup.string().required('Required'),
+  email: Yup.string().required('Required').email(),
   password: Yup.string().required('Required'),
 });
 
@@ -22,7 +22,7 @@ const LoginPage: React.FC = () => {
   const formik = useFormik({
         initialValues:{ email: '', password: '' },
         validationSchema:LoginSchema,
-        onSubmit:(values:loginDetails) => {
+        onSubmit:(values:LoginDetails) => {
             console.log("Json value for the login details submitted: ", JSON.stringify(values, null, 2))
             dispatch(loginActions.login({email:values.email,password:values.password}))
         }

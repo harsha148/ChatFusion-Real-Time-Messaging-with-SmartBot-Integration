@@ -28,9 +28,9 @@ public class ChatController {
     private UserService userService;
 
     @PostMapping("/createnongrpchat")
-    public ResponseEntity<Chat> createNongrpchat(@Param("toUserId") Integer toUserId, @RequestHeader("Authorization") String token) throws UserException {
+    public ResponseEntity<Chat> createNongrpchat(@Param("toUserId") String toUserId, @RequestHeader("Authorization") String token) throws UserException {
         User reqUser = this.userService.findUserByJWT(token);
-        Chat chat = this.chatService.createChat(reqUser,toUserId);
+        Chat chat = this.chatService.createChat(reqUser,Integer.valueOf(toUserId));
         return new ResponseEntity<Chat>(chat, HttpStatus.OK);
     }
 

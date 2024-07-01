@@ -10,6 +10,8 @@ public interface IUserService {
 
     public User findUserById(int id) throws UserException;
 
+    public List<User> getAllUsers() throws UserException;
+
     public User findUserByEmail(String email) throws UserException;
 
     public List<User> searchUser(String query) throws UserException;
