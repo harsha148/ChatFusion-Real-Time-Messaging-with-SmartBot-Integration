@@ -1,6 +1,8 @@
 package com.chatfusion.chatfusion.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.Set;
 public class Chat {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     private boolean isGroup;
     private String groupname;
 
@@ -33,18 +35,12 @@ public class Chat {
 
     @Override
     public String toString() {
-        return "Chat{" +
-                "id=" + id +
-                ", isGroup=" + isGroup +
-                ", groupName='" + groupname + '\'' +
-                ", admins=" + admins +
-                ", createdBy=" + createdBy +
-                ", users=" + users +
-                ", messages=" + messages +
-                '}';
+        return "Chat [id=" + id + ", chatName=" + groupname
+                + ", isGroup=" + isGroup + ", admins=" + admins + ", createdBy=" + createdBy + ", users=" + users
+                + ", messages=" + (messages != null ? messages.size() : 0) + "]";
     }
 
-    public Chat(int id, boolean isGroup, String groupName, Set<User> admins, User createdBy, Set<User> users, List<Message> messages) {
+    public Chat(Integer id, boolean isGroup, String groupName, Set<User> admins, User createdBy, Set<User> users, List<Message> messages) {
         this.id = id;
         this.isGroup = isGroup;
         this.groupname = groupName;
@@ -98,14 +94,15 @@ public class Chat {
         isGroup = group;
     }
 
-    @OneToMany
+    @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Message> messages=new ArrayList<>();;
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 }

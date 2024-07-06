@@ -1,6 +1,8 @@
 package com.chatfusion.chatfusion.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -12,13 +14,13 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    private Integer id;
     private String content;
     private LocalDateTime timestamp;
     @ManyToOne
     private User user;
 
-    public Message(int id, String content, LocalDateTime timestamp, User user, Chat chat) {
+    public Message(Integer id, String content, LocalDateTime timestamp, User user, Chat chat) {
         this.id = id;
         this.content = content;
         this.timestamp = timestamp;
@@ -30,6 +32,10 @@ public class Message {
 
     }
 
+    public ReceivedMessage getReceivedMessage() {
+        return new ReceivedMessage(this.id,this.content,this.timestamp,this.chat.getId(),this.user.getId());
+    }
+
     @Override
     public String toString() {
         return "Message{" +
@@ -37,7 +43,7 @@ public class Message {
                 ", content='" + content + '\'' +
                 ", timestamp=" + timestamp +
                 ", user=" + user +
-                ", chat=" + chat +
+                ", chat=" + (chat != null ? chat.getId() : null) +
                 '}';
     }
 
@@ -50,6 +56,7 @@ public class Message {
     }
 
     @ManyToOne
+    @JsonBackReference
     private Chat chat;
 
     public User getUser() {
@@ -76,11 +83,11 @@ public class Message {
         this.content = content;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 }

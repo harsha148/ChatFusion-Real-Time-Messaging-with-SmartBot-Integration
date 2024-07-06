@@ -13,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -20,36 +21,37 @@ import java.util.Collections;
 @Configuration
 public class AppConfig {
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/**").authenticated()
-                        .anyRequest().permitAll())
-                .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
-                .csrf(csrf->csrf.disable())
-                .cors(cors-> cors.configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-                        CorsConfiguration cfg = new CorsConfiguration();
+        http.sessionManagement(sess -> sess
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                ).csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/ws/**").permitAll()
+                        .anyRequest().permitAll()
+                ).cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
-                        cfg.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
-                        cfg.setAllowedOriginPatterns(Arrays.asList("http://localhost:3000"));
-
-                        cfg.setAllowedMethods(Collections.singletonList("*"));
-                        cfg.setAllowedHeaders(Collections.singletonList("*"));
-                        cfg.setExposedHeaders(Arrays.asList("Authorization"));
-                        cfg.setMaxAge(3600L);
-
-                        return cfg;
-                    }})).formLogin(Customizer.withDefaults()).httpBasic(Customizer.withDefaults());
         return http.build();
-
     }
 
-                        // Defines a bean for password encoding using BCrypt
     @Bean
-    PasswordEncoder passwordEncoder() {
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000")); // Specify allowed origins
+        configuration.setAllowedMethods(Collections.singletonList("*"));
+        configuration.setAllowedHeaders(Collections.singletonList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
 }

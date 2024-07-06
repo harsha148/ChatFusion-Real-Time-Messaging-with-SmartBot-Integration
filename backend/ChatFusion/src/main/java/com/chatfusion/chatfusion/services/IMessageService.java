@@ -7,13 +7,13 @@ import com.chatfusion.chatfusion.exception.MessageException;
 import com.chatfusion.chatfusion.exception.UserException;
 import com.chatfusion.chatfusion.model.requestpayload.SendMessageRequest;
 
-import java.util.List;
+import java.util.ArrayList;
 
 public interface IMessageService {
 
     public Message sendMessage(SendMessageRequest req) throws UserException, ChatException;
 
-    public List<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException;
+    public ArrayList<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException;
 
     public Message findMessageById(Integer messaageId) throws MessageException;
 

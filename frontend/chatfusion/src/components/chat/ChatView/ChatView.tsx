@@ -1,23 +1,49 @@
-import React, { ChangeEvent, useEffect, useState } from 'react';
-import { TextField, Button, Container, List, Typography, Divider, FormControl, InputLabel, OutlinedInput, IconButton, InputAdornment, Stack, Input, styled} from '@mui/material';
-import {Chat, MessageType, SendMessagePayload} from '../../../types'
+import React, { ChangeEvent, useEffect, useRef, useState } from 'react';
+import { TextField, Button, Container, List, Typography, Divider, FormControl, InputLabel, OutlinedInput, IconButton, InputAdornment, Stack, Input, styled, ListItem} from '@mui/material';
+import {Chat, MessageType, SendMessagePayload, WebsocketMessage} from '../../../types'
 import * as Yup from 'yup';
 import Message from '../Message';
 import { useAppSelector } from '../../../redux/hooks';
 import { Box, Paper } from '@mui/material';
-import { makeStyles } from '@material-ui/core';
+import { makeStyles, RootRef } from '@material-ui/core';
 import { useTheme } from '@mui/material/styles';
 import { AccountBoxRounded, AccountCircle, Call, CallOutlined, DuoOutlined, Search, Send, VideoCall, VideoCallOutlined, Visibility } from '@mui/icons-material';
 import { RootState } from '../../../redux/store';
 import { useDispatch } from 'react-redux';
 import { ThunkDispatch } from '@reduxjs/toolkit';
-import { MessageActions } from '../../../redux/Messages/MessageReducers';
 import { chatActions } from '../../../redux/Chat/ChatReducers';
+import WebSocketService from '../../../websocket-client/WebSocketService';
+import { BASE_API_URL } from '../../../constants';
 
 interface MatchParams {
   id: string;
 }
 
+const parseWebsocketMessage = (wsMessage:WebsocketMessage)=>{
+  console.log('Parsing websocket message')
+  console.log(wsMessage)
+  const message:MessageType={
+    id: wsMessage.id,
+    content: wsMessage.content,
+    user: {
+      id: wsMessage.userId,
+      username: '',
+      email: '',
+      profile: ''
+    },
+    timestamp: wsMessage.timestamp,
+    chat:{
+      id: wsMessage.userId,
+      isGroup:false,
+      groupname: '',
+      messages: [],
+      createdBy:undefined,
+      admins:[],
+      users:[]
+    }
+  }
+  return message
+}
 
 const MessageSchema = Yup.object().shape({
   text: Yup.string().required('Required'),
@@ -33,7 +59,7 @@ const useStyles = makeStyles((theme) => ({
   },
   messageList: {
     flexGrow: 1,
-    overflow: 'auto',
+    overflow: 'hidden',
     marginBottom: theme.spacing(2),
   },
   form: {
@@ -47,9 +73,8 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2),
   },
 }));
-
+const webSocketService = new WebSocketService(BASE_API_URL + '/ws')
 const ChatView: React.FC<MatchParams> = ({id}) => {
-  const classes = useStyles();
   const dispatch = useDispatch<ThunkDispatch<any, any, any>>();
   const chatId = useAppSelector(store=>store.chats.selectedChatId);
   useEffect(()=>{
@@ -57,13 +82,47 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
       dispatch(chatActions.getChatMessages(chatId))
     }
   },[chatId])
-  
+
+  const endMessageRef = useRef<HTMLDivElement>(null)
   const currentUser = useAppSelector(state=>state.user.currentUser)
   const chats = useAppSelector((state: RootState) =>state.chats.userChats)
   var chat = useAppSelector(store=>store.chats.currentActiveChat)
   const currentChatMessages = useAppSelector(store=>store.chats.currentChatMessages)
   const [message,setMessage] = useState<string>('')
   const theme = useTheme()
+  useEffect(()=>{
+    endMessageRef.current?.scrollIntoView()
+  },[currentChatMessages])
+
+  useEffect(()=>{
+    webSocketService.connect()
+    return ()=>{
+      console.log('Disconnecting client from the websocket')
+      webSocketService.disconnect()
+    }
+  },[])
+
+  useEffect(() => {
+    if (chat?.id) {
+      console.log(`Setting up subscription for chat ID: ${chat.id}`);
+      webSocketService.subscribe(`/group/${chat.id}`, (wsMessageJson) => {
+        const wsMessage:WebsocketMessage = JSON.parse(wsMessageJson.body)
+        console.log('Received message in ChatView:', wsMessage);
+        const message = parseWebsocketMessage(wsMessage)
+        console.log('Parsed message from the web socket is:')
+        console.log(message)
+        dispatch(chatActions.actions.ON_MESSAGE_RECEIVE(message));
+      });
+    }
+    return ()=>{
+      if(chat?.id){
+        console.log(`Unsubscribing from the chat id:${chat?.id}`)
+        webSocketService.unsubscribe(`/group/${chat.id}`)
+      }
+    }
+  }, [chat?.id, webSocketService]);
+
+
   const handleSendMessage = (e:any)=>{
     e.preventDefault()
     if(message.length>0){
@@ -73,7 +132,8 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
         chatId:chatId,
         content:message
       }
-      dispatch(MessageActions.sendMessage(sendMessageReq))
+      const wsResponse = webSocketService.sendMessage(sendMessageReq)
+      // dispatch(chatActions.sendMessage(sendMessageReq))
       setMessage('')
     }
   }
@@ -82,7 +142,7 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
     console.log('Current Chat updated')
     console.log(chat)
   },[chat])
-
+  
 
   const styles = {
     paperContainer: {
@@ -118,7 +178,7 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
   console.log('Current chat from Chat view')
   console.log(chat)
   return (
-    <Container maxWidth={false} className="flex-col h-full overflow-hidden w-full" disableGutters sx={{margin:0, width:'100%'}}>
+    <Container maxWidth={false} className="flex-col h-full w-full" disableGutters sx={{margin:0, width:'100%'}}>
       <Paper className='h-full' sx={{padding:0}} style={styles.paperContainer}>
         <Paper sx={{ bgcolor: theme.palette.grey[800], height: '6%', padding: 0, display:'flex', borderRadius:0}}>
           <Stack className='w-full' direction='row' alignItems='center' justifyContent='space-between'>
@@ -135,17 +195,22 @@ const ChatView: React.FC<MatchParams> = ({id}) => {
             </Stack>
           </Stack>
         </Paper>
-          <List className={classes.messageList} sx={{paddingLeft:'15%',paddingRight:'15%'}}>
+        <Paper className='h-full'>
+          <List sx={{overflow:'scroll', overflowX:'hidden', height:'80%',paddingLeft:'15%',paddingRight:'15%'}}>
             {currentChatMessages.map((message: MessageType) => (
-              <Message
-                id = {message.id}
-                user = {message.user}
-                content = {message.content}
-                timestamp={message.timestamp}
-                chat={undefined}
-              />
+              <ListItem>
+                <Message
+                  id = {message.id}
+                  user = {message.user}
+                  content = {message.content}
+                  timestamp={message.timestamp}
+                  chat={undefined}
+                />
+              </ListItem>
             ))}
+            <ListItem><div ref={endMessageRef}></div></ListItem>
           </List>
+        </Paper>
         <form style={{height:'60px',position:'fixed',bottom:0,width:'-webkit-fill-available'}} onSubmit={handleSendMessage}>
           <FormControl  sx={{width:'100%', height:'100%'}} variant="outlined">
             <TextField

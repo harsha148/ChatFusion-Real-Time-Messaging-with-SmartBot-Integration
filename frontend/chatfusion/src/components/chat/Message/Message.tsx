@@ -5,6 +5,7 @@ import { Box, Container, Paper } from '@mui/material';
 import { secondary } from '../../../theme';
 import { useAppSelector } from '../../../redux/hooks';
 import { useTheme } from '@mui/material/styles';
+import { formatDistanceToNow } from 'date-fns';
 interface MessageProps {
   message: MessageType;
   isCurrentUser: boolean;
@@ -13,11 +14,9 @@ interface MessageProps {
 const Message: React.FC<MessageType> = (message) => {
 
     const currentUser = useAppSelector(state=>state.user.currentUser)
-    console.log('Fetched the current user name:', currentUser?.username)
-    const isCurrentUser = (message.user.username == currentUser?.username)
-    console.log('Comparing it with current message sender: ',message.user)
-    console.log('isCurrentUser:',isCurrentUser)
+    const isCurrentUser = (message.user.id == currentUser?.id)
     const lm = isCurrentUser?'auto':'2px'
+    const formattedTimestamp = formatDistanceToNow(message.timestamp)
     const theme = useTheme()
     return (
         <Box sx={{padding:'2px', maxWidth:'50%', width:'fit-content'}} className = {` ${
@@ -32,7 +31,7 @@ const Message: React.FC<MessageType> = (message) => {
                 </Typography>
             </Paper>
             <Typography variant='caption' className='ml-auto'>
-                {message.timestamp}
+                {formattedTimestamp + ' ago'}
             </Typography>
         </Box>
     );

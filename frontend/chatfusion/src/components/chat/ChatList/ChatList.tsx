@@ -38,40 +38,23 @@ const ChatList: React.FC = () => {
       dispatch(userActions.searchUser(searchQuery))
     }
   }
-  useEffect(()=>{
-    if(searchTerm==''){
-      filteredChats = chats
-    }
-    else{
-      filteredChats = chats.filter((chat)=>{
-        (chat.isGroup && chat.groupname.includes(searchTerm)) || (!chat.isGroup && (chat.users[0].username.includes(searchTerm)||(chat.users[1].username.includes(searchTerm))))
-      })
-    }
-  },[searchTerm])
-  console.log('Loaded userChats from store into ChatLIST')
-  console.log(chats)
-  var filteredChats:Chat[] = chats
+  var [filteredChats,setFilteredChats] = useState<Chat[]>([])
 
-  // if (chats?.length>0){
-  //   filteredChats.concat(chats.filter((chat) =>{
-  //       chat.isGroup && chat.groupname.toLowerCase().includes(searchTerm.toLowerCase())
-  //   })).concat(chats.filter((chat) =>{
-  //     !chat.isGroup && chat.groupname.toLowerCase().includes(searchTerm.toLowerCase())
-  // }));
-  // }
-  // useEffect(()=>{
-  //   console.log('Updated user chats:')
-  //   console.log(chats)
-  // },[chats])
-  console.log('Filtered userChats from store into ChatLIST')
-  console.log(filteredChats)
-  // useEffect(()=>{
-  //   dispatch(chatActions.userChats(''))
-  // },[useAppSelector((state:RootState)=>state.chats.loadChats)])
-  // const searchResults =   useAppSelector(state=>state.user.searchUsersResult)
-  // if(searchTerm.length>0){
-  //   // filteredChats = searchResults
-  // }
+  useEffect(()=>{
+    console.log('User chats/search term updated in ChatList component')
+    console.log(chats)
+    if(searchTerm=='' && chats){
+      setFilteredChats(chats)
+    }
+    else if(chats){
+      setFilteredChats(chats.filter((chat)=>{
+        (chat.isGroup && chat.groupname.includes(searchTerm)) || (!chat.isGroup && (chat.users[0].username.includes(searchTerm)||(chat.users[1].username.includes(searchTerm))))
+      }))
+    }
+    console.log('Filtered userChats from store into ChatLIST')
+    console.log(filteredChats)
+  },[searchTerm,chats])
+  
   const [newChatOpen, setNewChatOpen] = useState(false)
   const [newGroupOpen, setNewGroupOpen] = useState(false)
   const handleNewChatClose = ()=>{
@@ -90,6 +73,9 @@ const ChatList: React.FC = () => {
   }
   const currentUser = useAppSelector(state=>state.user.currentUser)
   const theme = useTheme()
+  console.log('Filtered Chats just before rendering')
+  console.log(filteredChats)
+  console.log('Type of filtered list is '+typeof(filteredChats))
   return (
     
     <Container maxWidth={false} className="h-full w-full" disableGutters >
@@ -132,7 +118,7 @@ const ChatList: React.FC = () => {
         />
         {/* <Paper style={{overflow: 'auto'}}> */}
           <List className="flex-grow overflow-auto">
-            {filteredChats.map((chat) => (
+            {filteredChats.length>0 && filteredChats.map((chat) => (
               <div key={chat.id}>
                 <ListItem>
                   <ListItemButton id={String(chat.id)} onClick={(event)=>{handleChatClick(chat.id)}}>

@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.ArrayList;
 
 @Service
 public class MessageService implements IMessageService {
@@ -42,8 +42,8 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public List<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException {
-        return this.messageRepository.findMessagesByChatId(chatId);
+    public ArrayList<Message> getChatsMessages(Integer chatId, User reqUser) throws ChatException, UserException {
+        return (ArrayList<Message>) this.messageRepository.findMessagesByChatId(chatId);
     }
 
     @Override

@@ -4,7 +4,6 @@ import { TypedUseSelectorHook, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { userReducer } from './User/UserReducer';
 import { chatReducer } from './Chat/ChatReducers';
-import { messageReducer } from './Messages/MessageReducers';
 
 // const rootReducer = combineReducers({
 //   login:loginReducer,
@@ -18,7 +17,6 @@ const store = configureStore({
     login:loginReducer,
     user:userReducer,
     chats:chatReducer,
-    messages:messageReducer
   }
 })
 export type RootState = ReturnType<typeof store.getState>;

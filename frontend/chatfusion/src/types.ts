@@ -23,9 +23,17 @@ export interface MessageType {
     isGroup:boolean,
     groupname: string;
     messages: MessageType[];
-    createdBy:User,
+    createdBy?:User,
     admins:User[],
     users:User[]
+  }
+
+  export interface WebsocketMessage{
+    id:number;
+    content:string,
+    userId:number;
+    timestamp:string;
+    chatId:number
   }
   
   export interface User {

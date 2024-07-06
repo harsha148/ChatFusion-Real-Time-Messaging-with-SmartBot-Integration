@@ -1,15 +1,18 @@
 package com.chatfusion.chatfusion.services;
 
 import com.chatfusion.chatfusion.domain.Chat;
+import com.chatfusion.chatfusion.domain.Message;
 import com.chatfusion.chatfusion.domain.User;
 import com.chatfusion.chatfusion.exception.ChatException;
 import com.chatfusion.chatfusion.exception.UserException;
 import com.chatfusion.chatfusion.model.requestpayload.GroupChatRequest;
 import com.chatfusion.chatfusion.repository.ChatRepository;
+import com.chatfusion.chatfusion.repository.MessageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.AutoConfigureOrder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,6 +23,9 @@ public class ChatService implements IChatService {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private MessageRepository messageRepository;
 
     @Override
     public Chat createChat(User reqUser, Integer userId) throws UserException {

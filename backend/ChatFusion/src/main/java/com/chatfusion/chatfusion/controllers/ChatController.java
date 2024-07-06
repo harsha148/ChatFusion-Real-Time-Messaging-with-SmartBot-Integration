@@ -50,9 +50,7 @@ public class ChatController {
     @GetMapping("/userchats")
     public ResponseEntity<List<Chat>> getUserChats(@RequestHeader("Authorization") String token) throws UserException {
         User reqUser = this.userService.findUserByJWT(token);
-
         List<Chat> chats = this.chatService.findAllChatByUserId(reqUser.getId());
-
         return new ResponseEntity<List<Chat>>(chats, HttpStatus.OK);
     }
 
@@ -60,11 +58,8 @@ public class ChatController {
     public ResponseEntity<Chat> addUserToGroupHandler(@PathVariable Integer chatId,
                                                       @PathVariable Integer userId, @RequestHeader("Authorization") String token)
             throws UserException, ChatException {
-
         User reqUser = this.userService.findUserByJWT(token);
-
         Chat chat = this.chatService.addUserToGroup(userId, chatId, reqUser);
-
         return new ResponseEntity<>(chat, HttpStatus.OK);
     }
 
@@ -74,9 +69,7 @@ public class ChatController {
             throws UserException, ChatException {
 
         User reqUser = this.userService.findUserByJWT(token);
-
         Chat chat = this.chatService.removeFromGroup(userId, chatId, reqUser);
-
         return new ResponseEntity<>(chat, HttpStatus.OK);
     }
 
@@ -84,13 +77,9 @@ public class ChatController {
     public ResponseEntity<ApiResponse> deleteChatHandler(@PathVariable Integer chatId,
                                                          @RequestHeader("Authorization") String token)
             throws UserException, ChatException {
-
         User reqUser = this.userService.findUserByJWT(token);
-
         this.chatService.deleteChat(chatId, reqUser.getId());
-
         ApiResponse res = new ApiResponse("Deleted Successfully...", false);
-
         return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
