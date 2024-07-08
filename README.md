@@ -1,5 +1,9 @@
 # ChatFusion-Real-Time-Messaging-with-SmartBot-Integration
 A real time messaging application, integrated with OpenAI LLM as a chatbot
+
+http://chatfusion.s3-website.us-east-2.amazonaws.com/
+
+
 Login page:
 ![image](https://github.com/harsha148/ChatFusion-Real-Time-Messaging-with-SmartBot-Integration/assets/78093389/5d7f62e9-bfa7-435b-92f7-e88d448f44d7)
 Sign up page:
